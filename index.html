@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Buy/Sell</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f5;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        p {
+            font-size: 16px;
+        }
+
+        .response {
+            padding: 10px;
+            background-color: #e0f7e0;
+            border: 1px solid #28a745;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+    <script>
+        // Function to handle the buy request
+        function buy(event) {
+            event.preventDefault(); // Prevent form from submitting normally
+            const token = document.getElementById("buy-token").value;
+            const name = document.getElementById("buy-name").value; // Assuming slippage is a number
+            const rise = parseFloat(document.getElementById("buy-rise").value); // Assuming rise is a number
+
+            // Clear previous response message
+            document.getElementById("buy-response").innerHTML = "Processing...";
+
+            // Send the fetch request through a proxy
+            fetch(`http://localhost:5000/api/buy?token=${token}&rise=${rise}&name=${name}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Display the buy response on the screen
+                    document.getElementById("buy-response").innerHTML = `<div class="response">Buy Response: ${JSON.stringify(data)}</div>`;
+                })
+                .catch(error => {
+                    // Handle any errors
+                    document.getElementById("buy-response").innerHTML = `<div class="error">Error: ${error}</div>`;
+                });
+        }
+
+        // Function to handle the sell request
+        function sell(event) {
+            event.preventDefault(); // Prevent form from submitting normally
+            const token = document.getElementById("sell-token").value;
+            const slippage = parseFloat(document.getElementById("sell-slippage").value); // Assuming slippage is a number
+            const name = document.getElementById("sell-name").value; // Assuming slippage is a number
+            const coin = document.getElementById("sell-coin").value;
+
+            // Clear previous response message
+            document.getElementById("sell-response").innerHTML = "Processing...";
+
+            // Send the fetch request through a proxy
+            fetch(`http://localhost:5000/api/sell?token=${token}&slippage=${slippage}&coin=${coin}&name=${name}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Display the sell response on the screen
+                    document.getElementById("sell-response").innerHTML = `<div class="response">Sell Response: ${JSON.stringify(data)}</div>`;
+                })
+                .catch(error => {
+                    // Handle any errors
+                    document.getElementById("sell-response").innerHTML = `<div class="error">Error: ${error}</div>`;
+                });
+        }
+        function price() {
+            fetch(`http://localhost:5000/api/info`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("price").innerHTML = `Price: <b>${data["price"]}zł - ${data["buyers"]} / ${data["sellers"]}</b>`;
+                })
+                .catch(error => {
+                    // Handle any errors
+                    document.getElementById("response").innerHTML = `<div class="error">Error: ${error}</div>`;
+                });
+        }
+        setInterval(price, 1000);
+        price()
+    </script>
+</head>
+<body>
+    <h1>ZET COIN</h1>
+    <h3 id="price">Price: <b>0zł</b></h3>
+    <h2>Buy / Sell ZET COIN</h2>
+    <form id="buy-form" onsubmit="buy(event)">
+        <label for="buy-token">Token:</label>
+        <input type="text" id="buy-token" name="token" required>
+        
+        <label for="buy-name">Name:</label>
+        <input type="text" id="buy-name" name="name" required>
+
+        <label for="buy-rise">Rise:</label>
+        <input type="number" step="0.01" id="buy-rise" name="buy-rise" required>
+
+        <button type="submit">Buy</button>
+    </form>
+    <p id="buy-response"></p>
+
+    <hr>
+
+    <h2>Sell Crypto</h2>
+    <form id="sell-form" onsubmit="sell(event)">
+        <label for="sell-coin">Coin:</label>
+        <input type="text" id="sell-coin" name="coin" required>
+
+        <label for="sell-name">Name:</label>
+        <input type="text" id="sell-name" name="name" required>
+
+        <label for="sell-token">Token:</label>
+        <input type="text" id="sell-token" name="token" required>
+
+        <label for="sell-slippage">Slippage:</label>
+        <input type="number" step="0.01" id="sell-slippage" name="sell-slippage" required>
+
+        <button type="submit">Sell</button>
+    </form>
+    <p id="sell-response"></p>
+
+</body>
+</html>

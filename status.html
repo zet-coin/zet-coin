@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Buy/Sell</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f5;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        p {
+            font-size: 16px;
+        }
+
+        .response {
+            padding: 10px;
+            background-color: #e0f7e0;
+            border: 1px solid #28a745;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+    <script>
+        // Function to handle the status check
+        function status(event) {
+            event.preventDefault(); // Prevent form from submitting normally
+            const token = document.getElementById("token-status").value;
+
+            // Clear previous response message
+            document.getElementById("response").innerHTML = "Processing...";
+
+            // Send the fetch request
+            fetch(`http://localhost:5000/api/status?token=${token}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Display the status response on the screen
+                    document.getElementById("response").innerHTML = `<div class="response">Response: ${JSON.stringify(data)}</div>`;
+                })
+                .catch(error => {
+                    // Handle any errors
+                    document.getElementById("response").innerHTML = `<div class="error">Error: ${error}</div>`;
+                });
+        }
+
+        // Function to handle confirmation
+        function resolveConfirm(event) {
+            event.preventDefault(); // Prevent form from submitting normally
+            const token = document.getElementById("token-confirm").value;
+
+            // Clear previous response message
+            document.getElementById("response").innerHTML = "Processing...";
+
+            // Send the fetch request for confirming
+            fetch(`http://localhost:5000/api/confirm?token=${token}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Display the confirmation response on the screen
+                    document.getElementById("response").innerHTML = `<div class="response">Response: ${JSON.stringify(data)}</div>`;
+                })
+                .catch(error => {
+                    // Handle any errors
+                    document.getElementById("response").innerHTML = `<div class="error">Error: ${error}</div>`;
+                });
+        }
+
+        // Function to handle denial
+        function resolveDeny(event) {
+            event.preventDefault(); // Prevent form from submitting normally
+            const token = document.getElementById("token-deny").value;
+
+            // Clear previous response message
+            document.getElementById("response").innerHTML = "Processing...";
+
+            // Send the fetch request for denial
+            fetch(`http://localhost:5001/api/deny?token=${token}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Display the denial response on the screen
+                    document.getElementById("response").innerHTML = `<div class="response">Response: ${JSON.stringify(data)}</div>`;
+                })
+                .catch(error => {
+                    // Handle any errors
+                    document.getElementById("response").innerHTML = `<div class="error">Error: ${error}</div>`;
+                });
+        }
+        function price() {
+            fetch(`http://localhost:5000/api/price`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("price").innerHTML = `Price: <b>${data["price"]}zł</b>`;
+                })
+                .catch(error => {
+                    // Handle any errors
+                    document.getElementById("response").innerHTML = `<div class="error">Error: ${error}</div>`;
+                });
+        }
+        setInterval(price, 1000);
+        price()
+    </script>
+</head>
+<body>
+    <h1>ZET COIN</h1>
+    <h3 id="price">Price: <b>0zł</b></h3>
+    <h2>Check Transaction Status</h2>
+    <form id="status-form" onsubmit="status(event)">
+        <label for="token-status">Token:</label>
+        <input type="text" id="token-status" name="token" required>
+        <button type="submit">Check Status</button>
+    </form>
+
+    <h2>Confirm Transaction</h2>
+    <form id="confirm-form" onsubmit="resolveConfirm(event)">
+        <label for="token-confirm">Token:</label>
+        <input type="text" id="token-confirm" name="token" required>
+        <button type="submit">Confirm</button>
+    </form>
+
+    <h2>Deny Transaction</h2>
+    <form id="deny-form" onsubmit="resolveDeny(event)">
+        <label for="token-deny">Token:</label>
+        <input type="text" id="token-deny" name="token" required>
+        <button type="submit">Deny</button>
+    </form>
+
+    <p id="response"></p>
+</body>
+</html>
